@@ -4,6 +4,8 @@ public class Connection {
     private String first;
     private  String second;
 
+    public Connection() {}
+
     public Connection(String first, String second) {
         this.first = first;
         this.second = second;
