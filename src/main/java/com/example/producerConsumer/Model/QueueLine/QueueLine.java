@@ -40,8 +40,10 @@ public class QueueLine {
     }
 
     public void addProduct(Product product) {
-        queue.add(product);
-        updateColor();
+        if (product != null) {
+            queue.add(product);
+            updateColor();
+        }
     }
 
     synchronized public void updateColor() {

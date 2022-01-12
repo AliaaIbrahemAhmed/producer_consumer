@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.net.http.WebSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 @Component
@@ -54,6 +55,15 @@ public class Design {
         }
         return false;
     }
+//    private static boolean checkColors() {
+//        for(Map.Entry<String,Machine> machineEntry : DataBase.getMachines().entrySet()){
+//            if(machineEntry.getValue().getColor() != null) return false;
+//        }
+//        for(Map.Entry<String,Machine> machineEntry : DataBase.getMachines().entrySet()){
+//            if(machineEntry.getValue().getColor() != null) return false;
+//        }
+//        return false;
+//    }
 
 
     synchronized public void notifyFrontEnd(ResponseObject responseObject) {
@@ -65,7 +75,7 @@ public class Design {
             QueueLine queueLine = new QueueLine(name, this);
             DataBase.getQueueLines().put(name, queueLine);
         } else if (name.charAt(0) == 'M') {
-            Machine machine = new Machine(name, (long) (Math.random() * 2000), this);
+            Machine machine = new Machine(name, (long) (Math.random() * 10000), this);
             DataBase.getMachines().put(name, machine);
             machine.start();
         }

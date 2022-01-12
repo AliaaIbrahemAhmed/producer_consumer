@@ -30,21 +30,18 @@ public class Machine extends Thread {
 
     @Override
     public void run() {
-        while (!Design.check()) {
+        while (!Design.check() || this.color != null) {
             notifyObservers();
-            if (getProduct() != null) {
-                updateColor();
-                System.out.println("Machine " + name + " is working in product with color " + getProduct().getColor());
-                System.out.println("Machine " + name + "'s color is" + getColor());
-                try {
-                    sleep(getWait());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                finish();
+            updateColor();
+            System.out.println(Design.check());
+            System.out.println("Machine " + name + "'s color is" + this.color);
+            try {
+                sleep(getWait());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+            finish();
         }
-
     }
 
 
