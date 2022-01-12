@@ -1,5 +1,6 @@
 package com.example.producerConsumer.Services;
 
+import com.example.producerConsumer.Model.ResponseObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ public class WebSocketServices {
         messagingTemplate.convertAndSend("/topic/" + topicSuffix, "Default message from our WS service");
     }
 
-    public void sendMessage(final String topicSuffix, final String payload) {
+    public void sendMessage(final String topicSuffix, final ResponseObject payload) {
         messagingTemplate.convertAndSend("/topic/" + topicSuffix, payload);
     }
 }

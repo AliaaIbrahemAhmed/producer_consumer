@@ -55,12 +55,12 @@ public class Design {
                 System.out.println("Machine " + machine.name + "'s color is" + machine.getColor());
                 ResponseObject responseObject = new ResponseObject(machine.name, machine.getColor());
                 ResponseService.addResponse(responseObject);
-                webSocketServices.sendMessage("change");
-                try {
-                    Controller.send();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                webSocketServices.sendMessage("messages", responseObject);
+//                try {
+//                    //Controller.send(responseObject);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
                 try {
                     machine.sleep(machine.getWait());
                 } catch (InterruptedException e) {
