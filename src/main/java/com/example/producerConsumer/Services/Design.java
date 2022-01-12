@@ -80,7 +80,7 @@ public class Design {
     public void checkEnd() {
         for (Map.Entry<String, Machine> machineEntry : DataBase.getMachines().entrySet()) {
             if (machineEntry.getValue().isAlive()) {
-                notifyFrontEnd(new ResponseObject("1",null));
+                notifyFrontEnd(new ResponseObject("1", null));
             }
         }
     }
@@ -134,6 +134,12 @@ public class Design {
             Machine machine = new Machine(name, (long) (Math.random() * 10000), this);
             DataBase.getMachines().put(name, machine);
             machine.start();
+        }
+    }
+
+    public void terminate() {
+        for (Map.Entry<String, Machine> machineEntry : DataBase.getMachines().entrySet()) {
+            machineEntry.getValue().exit = true;
         }
     }
 

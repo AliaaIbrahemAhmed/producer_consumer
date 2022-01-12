@@ -18,6 +18,7 @@ public class Machine extends Thread {
     private String nextQ;
     private long wait;
     Design design;
+    public boolean exit = false;
 
     public Machine(String name, long wait, Design design) {
         this.name = name;
@@ -31,7 +32,7 @@ public class Machine extends Thread {
     @Override
     public void run() {
         notifyObservers();
-        while (!Design.check() || this.color != null) {
+        while (!Design.check() || this.color != null && !exit) {
             notifyObservers();
             updateColor();
             System.out.println("Machine " + name + "'s color is" + this.color + " " + System.currentTimeMillis());
@@ -42,7 +43,7 @@ public class Machine extends Thread {
             }
             finish();
         }
-        // design.checkEnd();
+         design.checkEnd();
     }
 
 
@@ -57,7 +58,7 @@ public class Machine extends Thread {
         try {
             DataBase.getQueueLines().get(nextQ).addProduct(this.product);
         } catch (NullPointerException f) {
-            System.out.println("hgf");
+            design.terminate();
         }
 
         this.product = null;
