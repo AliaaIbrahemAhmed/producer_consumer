@@ -4,10 +4,7 @@ import com.example.producerConsumer.Model.Machine.Machine;
 import com.example.producerConsumer.Model.Product.Product;
 import com.example.producerConsumer.Model.ResponseObject;
 import com.example.producerConsumer.Services.Design;
-import com.example.producerConsumer.Services.ResponseService;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -39,14 +36,18 @@ public class QueueLine {
         this.number = number;
     }
 
-    public void addProduct(Product product) {
+    synchronized public void addProduct(Product product) {
         if (product != null) {
             queue.add(product);
+            number++;
+            updateNumber();
         }
     }
 
     synchronized public void updateNumber() {
         design.notifyFrontEnd(new ResponseObject(this.getName(), this.getNumber() + ""));
+        design.updateState(this.name,this.number+"",(System.currentTimeMillis()-(Design.startTime)));
+
     }
 
     synchronized public void getNotified(Machine machine) {
@@ -54,7 +55,7 @@ public class QueueLine {
         if (!queue.isEmpty()) {
             Product peek = queue.poll();
             machine.setProduct(peek);
-            this.number--;
+            this.number = this.number -1;
             updateNumber();
         }
     }

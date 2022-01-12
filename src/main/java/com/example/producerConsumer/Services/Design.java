@@ -6,11 +6,14 @@ import com.example.producerConsumer.Model.DataBase.DataBase;
 import com.example.producerConsumer.Model.Machine.Machine;
 import com.example.producerConsumer.Model.Product.Product;
 import com.example.producerConsumer.Model.QueueLine.QueueLine;
+import com.example.producerConsumer.Model.ResponseObject;
+import liquibase.pro.packaged.S;
 import liquibase.pro.packaged.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
+import javax.xml.crypto.Data;
 import java.net.http.WebSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +29,7 @@ public class Design {
     public static long startTime;
     public Originator originator = new Originator();
     public CareTaker careTaker = new CareTaker();
+    static private ArrayList<String> leaves = new ArrayList<>();
 
     @Autowired
     WebSocketServices webSocketServices;
@@ -35,6 +39,7 @@ public class Design {
         startTime = System.currentTimeMillis();
         numOfProducts = products.size();
         numOfQs = countQs(names);
+        leaves = this.leaves(names, connections);
         for (String name : names) {
             initializeObjects(name);
         }
@@ -44,7 +49,40 @@ public class Design {
         for (String product : products) {
             setProducts(product);
         }
+    }
 
+    public ArrayList<String> leaves(ArrayList<String> names, ArrayList<Connection> connections) {
+        ArrayList<String> res = new ArrayList<>();
+        res = (ArrayList<String>) names.clone();
+        for (Connection connection : connections) {
+            if (connection.getFirst().charAt(0) == 'Q') {
+                res.remove(connection.getFirst());
+                res.remove(connection.getSecond());
+            } else {
+                res.remove(connection.getFirst());
+            }
+        }
+        int i = 0;
+        while (i < res.size() - 1) {
+            int j = i + 1;
+            while (j < res.size()) {
+                if (res.get(i).equals(res.get(j))) {
+                    res.remove(j);
+                    j--;
+                }
+                j++;
+            }
+            i++;
+        }
+        return res;
+    }
+
+    public void checkEnd() {
+        for (Map.Entry<String, Machine> machineEntry : DataBase.getMachines().entrySet()) {
+            if (machineEntry.getValue().isAlive()) {
+                notifyFrontEnd(new ResponseObject("1",null));
+            }
+        }
     }
 
     public long countQs(ArrayList<String> names) {
@@ -54,12 +92,14 @@ public class Design {
     }
 
     public static boolean check() {
-        QueueLine queueLine = DataBase.getQueueLines().get("Q" + (numOfQs - 1));
-        if (queueLine != null && queueLine.getSize() == numOfProducts) {
-            System.out.println(queueLine.getSize());
-            return true;
+        long sum = 0;
+        for (String leaf : leaves) {
+            QueueLine queueLine = DataBase.getQueueLines().get(leaf);
+            if (queueLine != null) {
+                sum += queueLine.getSize();
+            }
         }
-        return false;
+        return sum == numOfProducts;
     }
 
     public void updateState(String name, String colorOrNumber, long time) {
@@ -72,9 +112,9 @@ public class Design {
         long replayEnd;
         List<Memento> states = careTaker.getList();
         int counter = 0;
-        while(counter < states.size()) {
+        while (counter < states.size()) {
             replayEnd = System.currentTimeMillis();
-            while(counter < states.size() && states.get(counter).getTime() <= replayEnd-replayStart) {
+            while (counter < states.size() && states.get(counter).getTime() <= replayEnd - replayStart) {
                 ResponseObject responseObject = new ResponseObject(states.get(counter).getName(), states.get(counter).getColorOrNumber());
                 webSocketServices.sendMessage("messages", responseObject);
                 counter++;

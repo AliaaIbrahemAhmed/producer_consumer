@@ -15,7 +15,7 @@ public class DataBase {
         machines.clear();
     }
 
-    public static HashMap<String, QueueLine> getQueueLines() {
+    synchronized public static HashMap<String, QueueLine> getQueueLines() {
         return queueLines;
     }
 

@@ -34,7 +34,7 @@ public class Machine extends Thread {
         while (!Design.check() || this.color != null) {
             notifyObservers();
             updateColor();
-            System.out.println("Machine " + name + "'s color is" + this.color+ " " + System.currentTimeMillis());
+            System.out.println("Machine " + name + "'s color is" + this.color + " " + System.currentTimeMillis());
             try {
                 sleep(getWait());
             } catch (InterruptedException e) {
@@ -42,7 +42,7 @@ public class Machine extends Thread {
             }
             finish();
         }
-        System.out.println(Thread.activeCount());
+        // design.checkEnd();
     }
 
 
@@ -54,9 +54,12 @@ public class Machine extends Thread {
     }
 
     synchronized public void finish() {
-        DataBase.getQueueLines().get(nextQ).addProduct(this.product);
-        DataBase.getQueueLines().get(nextQ).setNumber(DataBase.getQueueLines().get(nextQ).getNumber()+1);
-        DataBase.getQueueLines().get(nextQ).updateNumber();
+        try {
+            DataBase.getQueueLines().get(nextQ).addProduct(this.product);
+        } catch (NullPointerException f) {
+            System.out.println("hgf");
+        }
+
         this.product = null;
 
     }
@@ -75,7 +78,9 @@ public class Machine extends Thread {
     }
 
     public void setNextQ(String nextQ) {
-        this.nextQ = nextQ;
+        if (nextQ != null) {
+            this.nextQ = nextQ;
+        }
     }
 
     public void addObserver(QueueLine queueLine) {
@@ -90,11 +95,11 @@ public class Machine extends Thread {
     public void updateColor() {
         long endTime = System.currentTimeMillis();
         if (this.product == null) {
-            if(this.color != null) design.updateState(this.name, null, endTime-Design.startTime);
+            if (this.color != null) design.updateState(this.name, null, endTime - Design.startTime);
             this.color = null;
-        }
-        else {
-            if(this.color != this.product.getColor()) design.updateState(this.name, this.product.getColor(), endTime-Design.startTime);
+        } else {
+            if (this.color != this.product.getColor())
+                design.updateState(this.name, this.product.getColor(), endTime - Design.startTime);
             this.color = this.product.getColor();
         }
         design.notifyFrontEnd(new ResponseObject(this.name, this.getColor()));
