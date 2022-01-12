@@ -20,12 +20,14 @@ import java.util.HashMap;
 public class Design {
 
     public static long numOfProducts;
+    public static long numOfQs;
 
     @Autowired
     WebSocketServices webSocketServices;
 
     public void setDesign(ArrayList<String> names, ArrayList<Connection> connections, ArrayList<String> products) {
         numOfProducts = products.size();
+        numOfQs = countQs(names);
         for (String name : names) {
             initializeObjects(name);
         }
@@ -38,45 +40,32 @@ public class Design {
 
     }
 
+    public long countQs(ArrayList<String> names) {
+        long counter = 0;
+        for (String i : names) if (i.charAt(0) == 'Q') counter++;
+        return counter;
+    }
+
     public static boolean check() {
-        QueueLine queueLine = DataBase.getQueueLines().get("Q" + (numOfProducts - 1));
+        QueueLine queueLine = DataBase.getQueueLines().get("Q" + (numOfQs - 1));
         if (queueLine != null && queueLine.getSize() == numOfProducts) {
+            System.out.println(queueLine.getSize());
             return true;
         }
         return false;
     }
 
-    public void run(Machine machine){
-        while (!Design.check()) {
-            machine.notifyObservers();
-            if (machine.getProduct() != null) {
-                machine.updateColor();
-                System.out.println("Machine " + machine.name + " is working in product with color " + machine.getProduct().getColor());
-                System.out.println("Machine " + machine.name + "'s color is" + machine.getColor());
-                ResponseObject responseObject = new ResponseObject(machine.name, machine.getColor());
-                ResponseService.addResponse(responseObject);
-                webSocketServices.sendMessage("messages", responseObject);
-//                try {
-//                    //Controller.send(responseObject);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-                try {
-                    machine.sleep(machine.getWait());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                machine.finish();
-            }
-        }
+
+    synchronized public void notifyFrontEnd(ResponseObject responseObject) {
+        webSocketServices.sendMessage("messages", responseObject);
     }
 
     public void initializeObjects(String name) {
         if (name.charAt(0) == 'Q') {
-            QueueLine queueLine = new QueueLine(name);
+            QueueLine queueLine = new QueueLine(name, this);
             DataBase.getQueueLines().put(name, queueLine);
-        } else {
-            Machine machine = new Machine(name, (long) (Math.random() * 1000),this);
+        } else if (name.charAt(0) == 'M') {
+            Machine machine = new Machine(name, (long) (Math.random() * 2000), this);
             DataBase.getMachines().put(name, machine);
             machine.start();
         }

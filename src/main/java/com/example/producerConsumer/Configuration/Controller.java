@@ -10,7 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.h2.util.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
 
@@ -29,11 +31,15 @@ public class Controller {
         DesignObject designObject = mapper.readValue(designString, DesignObject.class);
         design.setDesign(designObject.names, designObject.connections, designObject.products);
     }
+  /*  @PostMapping("/setDesign")
+    public void setDesign(@RequestParam ArrayList<String> names, @RequestBody ArrayList<Connection> connections, @RequestParam ArrayList<String> products) {
+        design.setDesign(names, connections, products);
+    }*/
 
-    @PostMapping("getChange")
+ /*   @PostMapping("getChange")
     public ResponseObject getChange(){
         return ResponseService.pop();
-    }
+    }*/
 
     @MessageMapping("/messages")
     @SendTo("/topic/messages")

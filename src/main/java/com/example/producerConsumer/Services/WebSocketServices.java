@@ -15,7 +15,7 @@ public class WebSocketServices {
     }
 
     public void sendMessage(final String topicSuffix) {
-        messagingTemplate.convertAndSend("/topic/" + topicSuffix, "Default message from our WS service");
+        messagingTemplate.convertAndSend("/topic/messages" + topicSuffix, "Default message from our WS service");
     }
 
     public void sendMessage(final String topicSuffix, final ResponseObject payload) {

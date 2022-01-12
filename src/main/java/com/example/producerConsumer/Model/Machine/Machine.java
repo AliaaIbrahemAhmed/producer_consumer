@@ -30,7 +30,20 @@ public class Machine extends Thread {
 
     @Override
     public void run() {
-        this.design.run(this);
+        while (!Design.check()) {
+            notifyObservers();
+            if (getProduct() != null) {
+                updateColor();
+                System.out.println("Machine " + name + " is working in product with color " + getProduct().getColor());
+                System.out.println("Machine " + name + "'s color is" + getColor());
+                try {
+                    sleep(getWait());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                finish();
+            }
+        }
 
     }
 
@@ -39,13 +52,13 @@ public class Machine extends Thread {
         for (QueueLine queueLine : observers) {
             queueLine.getNotified(this);
             if (product != null) break;
-
         }
     }
 
-    public void finish() {
+    synchronized public void finish() {
         DataBase.getQueueLines().get(nextQ).addProduct(this.product);
         this.product = null;
+
     }
 
     public long getWait() {
@@ -75,7 +88,9 @@ public class Machine extends Thread {
     }
 
     public void updateColor() {
-        this.color = this.product.getColor();
+        if (this.product == null) this.color = null;
+        else this.color = this.product.getColor();
+        design.notifyFrontEnd(new ResponseObject(this.name, this.getColor()));
     }
 
     public Product getProduct() {
