@@ -5,9 +5,7 @@ import com.example.producerConsumer.Model.DataBase.DataBase;
 import com.example.producerConsumer.Model.Product.Product;
 import com.example.producerConsumer.Model.QueueLine.QueueLine;
 import com.example.producerConsumer.Model.ResponseObject;
-import com.example.producerConsumer.Services.Design;
-import com.example.producerConsumer.Services.ResponseService;
-import com.example.producerConsumer.Services.WebSocketService;
+import com.example.producerConsumer.Services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -19,46 +17,21 @@ public class Machine extends Thread {
     private ArrayList<QueueLine> observers;
     private String nextQ;
     private long wait;
+    Design design;
 
-    @Autowired
-    private WebSocketService webSocketService;
-
-    private void notifyFrontEnd(){
-        webSocketService.sendMessage("change");
-    }
-
-    public Machine(String name, long wait) {
+    public Machine(String name, long wait, Design design) {
         this.name = name;
         this.wait = wait;
         observers = new ArrayList<>();
         System.out.println("Machine " + this.name + "'s wait time =" + this.wait);
+        this.design = design;
 
     }
 
     @Override
     public void run() {
-        while (!Design.check()) {
-            notifyObservers();
-            if (this.product != null) {
-                updateColor();
-                System.out.println("Machine " + this.name + " is working in product with color " + this.product.getColor());
-                System.out.println("Machine " + this.name + "'s color is" + this.color);
-                ResponseObject responseObject = new ResponseObject(this.name, this.color);
-                ResponseService.addResponse(responseObject);
-                notifyFrontEnd();
-                try {
-                    Controller.send(responseObject);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    sleep(this.wait);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                finish();
-            }
-        }
+        this.design.run(this);
+
     }
 
 

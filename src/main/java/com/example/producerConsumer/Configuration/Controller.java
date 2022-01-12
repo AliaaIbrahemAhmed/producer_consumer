@@ -10,7 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.h2.util.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
 
@@ -23,24 +25,27 @@ public class Controller {
     @Autowired
     Design design;
 
-    @PostMapping("/setDesign")
+   @PostMapping("/setDesign")
     public void setDesign(@RequestBody String designString) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         DesignObject designObject = mapper.readValue(designString, DesignObject.class);
         design.setDesign(designObject.names, designObject.connections, designObject.products);
     }
+  /*  @PostMapping("/setDesign")
+    public void setDesign(@RequestParam ArrayList<String> names, @RequestBody ArrayList<Connection> connections, @RequestParam ArrayList<String> products) {
+        design.setDesign(names, connections, products);
+    }*/
 
-    @PostMapping("getChange")
-    public ResponseObject getChange(){
+   @PostMapping("getChange")
+    public ResponseObject getChange() {
         return ResponseService.pop();
     }
 
-    @MessageMapping("/messages")
-    @SendTo("topic/messages")
-    public static ResponseObject send(ResponseObject responseObject) throws InterruptedException {
+    @MessageMapping("/change")
+    @SendTo("topic/change")
+    public static String send() throws InterruptedException {
         System.out.println("HI");
-        Thread.sleep(1000);
-        return responseObject;
+        return "HI";
     }
 
 }
