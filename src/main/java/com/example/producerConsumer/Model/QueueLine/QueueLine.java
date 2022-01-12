@@ -14,7 +14,7 @@ import java.util.Queue;
 public class QueueLine {
     private String name;
     Queue<Product> queue;
-    String color;
+    private int number;
     private Design design;
 
     public QueueLine(String name, Design design) {
@@ -31,39 +31,32 @@ public class QueueLine {
         this.name = name;
     }
 
-    public String getColor() {
-        return color;
+    public int getNumber() {
+        return number;
     }
 
-    public void setColor(String color) {
-        this.color = color;
+    public void setNumber(int number) {
+        this.number = number;
     }
 
     public void addProduct(Product product) {
         if (product != null) {
             queue.add(product);
-            updateColor();
         }
     }
 
-    synchronized public void updateColor() {
-        if (!queue.isEmpty() && queue.peek() != null) {
-            this.color = queue.peek().getColor();
-        } else this.color = null;
-        design.notifyFrontEnd(new ResponseObject(this.getName(), this.getColor()));
+    synchronized public void updateNumber() {
+        design.notifyFrontEnd(new ResponseObject(this.getName(), this.getNumber() + ""));
     }
 
     synchronized public void getNotified(Machine machine) {
+        System.out.println("Machine " + machine.name + " is notifying queue " + this.name + System.currentTimeMillis());
         if (!queue.isEmpty()) {
             Product peek = queue.poll();
-            if (peek != null) {
-                synchronized (peek) {
-                    machine.setProduct(peek);
-                    updateColor();
-                }
-            }
+            machine.setProduct(peek);
+            this.number--;
+            updateNumber();
         }
-
     }
 
     public boolean isEmpty() {

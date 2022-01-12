@@ -55,15 +55,6 @@ public class Design {
         }
         return false;
     }
-//    private static boolean checkColors() {
-//        for(Map.Entry<String,Machine> machineEntry : DataBase.getMachines().entrySet()){
-//            if(machineEntry.getValue().getColor() != null) return false;
-//        }
-//        for(Map.Entry<String,Machine> machineEntry : DataBase.getMachines().entrySet()){
-//            if(machineEntry.getValue().getColor() != null) return false;
-//        }
-//        return false;
-//    }
 
 
     synchronized public void notifyFrontEnd(ResponseObject responseObject) {

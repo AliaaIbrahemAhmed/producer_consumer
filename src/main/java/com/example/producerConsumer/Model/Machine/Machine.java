@@ -30,11 +30,11 @@ public class Machine extends Thread {
 
     @Override
     public void run() {
+        notifyObservers();
         while (!Design.check() || this.color != null) {
             notifyObservers();
             updateColor();
-            System.out.println(Design.check());
-            System.out.println("Machine " + name + "'s color is" + this.color);
+            System.out.println("Machine " + name + "'s color is" + this.color+ " " + System.currentTimeMillis());
             try {
                 sleep(getWait());
             } catch (InterruptedException e) {
@@ -42,6 +42,7 @@ public class Machine extends Thread {
             }
             finish();
         }
+        System.out.println(Thread.activeCount());
     }
 
 
@@ -54,6 +55,8 @@ public class Machine extends Thread {
 
     synchronized public void finish() {
         DataBase.getQueueLines().get(nextQ).addProduct(this.product);
+        DataBase.getQueueLines().get(nextQ).setNumber(DataBase.getQueueLines().get(nextQ).getNumber()+1);
+        DataBase.getQueueLines().get(nextQ).updateNumber();
         this.product = null;
 
     }
