@@ -1,12 +1,12 @@
 package com.example.producerConsumer.Services;
 
 import com.example.producerConsumer.Configuration.Controller;
-import com.example.producerConsumer.Model.Connection;
+import com.example.producerConsumer.Model.*;
 import com.example.producerConsumer.Model.DataBase.DataBase;
 import com.example.producerConsumer.Model.Machine.Machine;
 import com.example.producerConsumer.Model.Product.Product;
 import com.example.producerConsumer.Model.QueueLine.QueueLine;
-import com.example.producerConsumer.Model.ResponseObject;
+import liquibase.pro.packaged.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.net.http.WebSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -22,11 +23,16 @@ public class Design {
 
     public static long numOfProducts;
     public static long numOfQs;
+    public static long startTime;
+    public Originator originator = new Originator();
+    public CareTaker careTaker = new CareTaker();
 
     @Autowired
     WebSocketServices webSocketServices;
 
     public void setDesign(ArrayList<String> names, ArrayList<Connection> connections, ArrayList<String> products) {
+        DataBase.clear();
+        startTime = System.currentTimeMillis();
         numOfProducts = products.size();
         numOfQs = countQs(names);
         for (String name : names) {
@@ -56,6 +62,25 @@ public class Design {
         return false;
     }
 
+    public void updateState(String name, String colorOrNumber, long time) {
+        originator.setState(name, colorOrNumber, time);
+        careTaker.add(originator.saveStateToMemento());
+    }
+
+    public void replay() {
+        long replayStart = System.currentTimeMillis();
+        long replayEnd;
+        List<Memento> states = careTaker.getList();
+        int counter = 0;
+        while(counter < states.size()) {
+            replayEnd = System.currentTimeMillis();
+            while(counter < states.size() && states.get(counter).getTime() <= replayEnd-replayStart) {
+                ResponseObject responseObject = new ResponseObject(states.get(counter).getName(), states.get(counter).getColorOrNumber());
+                webSocketServices.sendMessage("messages", responseObject);
+                counter++;
+            }
+        }
+    }
 
     synchronized public void notifyFrontEnd(ResponseObject responseObject) {
         webSocketServices.sendMessage("messages", responseObject);

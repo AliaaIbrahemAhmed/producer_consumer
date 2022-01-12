@@ -10,6 +10,11 @@ public class DataBase {
     private static HashMap<String,QueueLine> queueLines = new HashMap<>();
     private static HashMap<String,Machine> machines = new HashMap<>();
 
+    public static void clear() {
+        queueLines.clear();
+        machines.clear();
+    }
+
     public static HashMap<String, QueueLine> getQueueLines() {
         return queueLines;
     }

@@ -31,6 +31,10 @@ public class Controller {
         DesignObject designObject = mapper.readValue(designString, DesignObject.class);
         design.setDesign(designObject.names, designObject.connections, designObject.products);
     }
+    @GetMapping("/replay")
+    public void replay() {
+        design.replay();
+    }
   /*  @PostMapping("/setDesign")
     public void setDesign(@RequestParam ArrayList<String> names, @RequestBody ArrayList<Connection> connections, @RequestParam ArrayList<String> products) {
         design.setDesign(names, connections, products);

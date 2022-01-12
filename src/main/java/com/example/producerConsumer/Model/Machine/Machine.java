@@ -88,8 +88,15 @@ public class Machine extends Thread {
     }
 
     public void updateColor() {
-        if (this.product == null) this.color = null;
-        else this.color = this.product.getColor();
+        long endTime = System.currentTimeMillis();
+        if (this.product == null) {
+            if(this.color != null) design.updateState(this.name, null, endTime-Design.startTime);
+            this.color = null;
+        }
+        else {
+            if(this.color != this.product.getColor()) design.updateState(this.name, this.product.getColor(), endTime-Design.startTime);
+            this.color = this.product.getColor();
+        }
         design.notifyFrontEnd(new ResponseObject(this.name, this.getColor()));
     }
 
